@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Schedules - Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="admin-dashboard">
+            <div class="sidebar">
+                <h3>Admin Panel</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/buses">Manage Buses</a></li>
+                    <li><a href="/admin/routes">Manage Routes</a></li>
+                    <li><a href="/admin/schedules" class="active">Manage Schedules</a></li>
+                    <li><a href="/admin/bookings">All Bookings</a></li>
+                </ul>
+            </div>
+            
+            <div class="content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Manage Schedules</h2>
+                    <button class="btn btn-primary" onclick="showAddScheduleModal()">Add New Schedule</button>
+                </div>
+                
+                <div id="schedulesList">
+                    <!-- Schedules list will be loaded here -->
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Schedule</h2>
+            <form id="scheduleForm">
+                <input type="hidden" id="scheduleId">
+                
+                <div class="form-group">
+                    <label for="busId">Select Bus</label>
+                    <select id="busId" required>
+                        <option value="">Select Bus</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="routeId">Select Route</label>
+                    <select id="routeId" required>
+                        <option value="">Select Route</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="departureTime">Departure Date & Time</label>
+                    <input type="datetime-local" id="departureTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="arrivalTime">Arrival Date & Time</label>
+                    <input type="datetime-local" id="arrivalTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fare">Fare ($)</label>
+                    <input type="number" id="fare" min="1" step="0.01" required>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let buses = [];
+        let routes = [];
+
+        async function loadSchedules() {
+            try {
+                const schedules = await API.get('/admin/schedules');
+                
+                if (schedules.length === 0) {
+                    document.getElementById('schedulesList').innerHTML = '<p class="alert alert-info">No schedules found. Click "Add New Schedule" to create one.</p>';
+                    return;
+                }
+                
+                let html = '<table class="data-table"><thead><tr><th>Bus</th><th>Route</th><th>Departure</th><th>Arrival</th><th>Fare</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                
+                schedules.forEach(schedule => {
+                    const departureTime = new Date(schedule.departureTime).toLocaleString();
+                    const arrivalTime = new Date(schedule.arrivalTime).toLocaleString();
+                    
+                    html += `
+                        <tr>
+                            <td>${schedule.bus.busName} (${schedule.bus.busNumber})</td>
+                            <td>${schedule.route.source} → ${schedule.route.destination}</td>
+                            <td>${departureTime}</td>
+                            <td>${arrivalTime}</td>
+                            <td>${formatCurrency(schedule.fare)}</td>
+                            <td><span style="color: ${schedule.status === 'Scheduled' ? '#27ae60' : '#e74c3c'};">${schedule.status}</span></td>
+                            <td class="actions">
+                                <button class="btn btn-small" onclick="editSchedule('${schedule._id}')">Edit</button>
+                                <button class="btn btn-small btn-danger" onclick="deleteSchedule('${schedule._id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                document.getElementById('schedulesList').innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('schedulesList').innerHTML = `<p class="alert alert-error">Error loading schedules: ${error.message}</p>`;
+            }
+        }
+
+        async function loadBusesAndRoutes() {
+            try {
+                [buses, routes] = await Promise.all([
+                    API.get('/admin/buses'),
+                    API.get('/admin/routes')
+                ]);
+                
+                const busSelect = document.getElementById('busId');
+                const routeSelect = document.getElementById('routeId');
+                
+                busSelect.innerHTML = '<option value="">Select Bus</option>';
+                routes.forEach(route => {
+                    routeSelect.innerHTML += `<option value="${route._id}">${route.source} → ${route.destination}</option>`;
+                });
+                
+            } catch (error) {
+                showAlert('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        function showAddScheduleModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Schedule';
+            document.getElementById('scheduleForm').reset();
+            document.getElementById('scheduleId').value = '';
+            
+            // Populate bus select
+            const busSelect = document.getElementById('busId');
+            busSelect.innerHTML = '<option value="">Select Bus</option>';
+            buses.forEach(bus => {
+                busSelect.innerHTML += `<option value="${bus._id}">${bus.busName} (${bus.busNumber})</option>`;
+            });
+            
+            document.getElementById('scheduleModal').style.display = 'block';
+        }
+
+        async function editSchedule(id) {
+            try {
+                const schedules = await API.get('/admin/schedules');
+                const schedule = schedules.find(s => s._id === id);
+                
+                if (schedule) {
+                    document.getElementById('modalTitle').textContent = 'Edit Schedule';
+                    document.getElementById('scheduleId').value = schedule._id;
+                    
+                    // Populate bus select
+                    const busSelect = document.getElementById('busId');
+                    busSelect.innerHTML = '<option value="">Select Bus</option>';
+                    buses.forEach(bus => {
+                        busSelect.innerHTML += `<option value="${bus._id}" ${bus._id === schedule.bus._id ? 'selected' : ''}>${bus.busName} (${bus.busNumber})</option>`;
+                    });
+                    
+                    document.getElementById('routeId').value = schedule.route._id;
+                    
+                    // Format datetime-local values
+                    const departureDate = new Date(schedule.departureTime);
+                    const arrivalDate = new Date(schedule.arrivalTime);
+                    
+                    document.getElementById('departureTime').value = departureDate.toISOString().slice(0, 16);
+                    document.getElementById('arrivalTime').value = arrivalDate.toISOString().slice(0, 16);
+                    document.getElementById('fare').value = schedule.fare;
+                    
+                    document.getElementById('scheduleModal').style.display = 'block';
+                }
+            } catch (error) {
+                showAlert('Error loading schedule details: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteSchedule(id) {
+            if (!confirm('Are you sure you want to delete this schedule?')) {
+                return;
+            }
+            
+            try {
+                await API.delete(`/admin/schedules/${id}`);
+                showAlert('Schedule deleted successfully', 'success');
+                loadSchedules();
+            } catch (error) {
+                showAlert('Error deleting schedule: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const scheduleData = {
+                busId: document.getElementById('busId').value,
+                routeId: document.getElementById('routeId').value,
+                departureTime: document.getElementById('departureTime').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                fare: parseFloat(document.getElementById('fare').value)
+            };
+            
+            const scheduleId = document.getElementById('scheduleId').value;
+            
+            try {
+                if (scheduleId) {
+                    await API.put(`/admin/schedules/${scheduleId}`, scheduleData);
+                    showAlert('Schedule updated successfully', 'success');
+                } else {
+                    await API.post('/admin/schedules', scheduleData);
+                    showAlert('Schedule created successfully', 'success');
+                }
+                
+                closeModal();
+                loadSchedules();
+            } catch (error) {
+                showAlert('Error saving schedule: ' + error.message, 'error');
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('scheduleModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load schedules and data on page load
+        Promise.all([loadSchedules(), loadBusesAndRoutes()]);
+    </script>
+</body>
+</html>

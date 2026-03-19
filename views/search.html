@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Buses - BusYatra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation - Perfect Height */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0 5%;
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: #667eea;
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            border-radius: 2px;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .nav-menu a i {
+            font-size: 16px;
+            color: #667eea;
+        }
+
+        /* Search Section - Perfect Card */
+        .search-section {
+            background: white;
+            margin: 30px 5%;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 20px;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: all 0.3s;
+            color: #718096;
+            font-weight: 600;
+            font-size: 15px;
+            background: #f8fafc;
+        }
+
+        .tab i {
+            font-size: 16px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 16px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 56px;
+            padding: 0 20px 0 48px;
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+            color: #1a202c;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 18px;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            height: 56px;
+            padding: 0 32px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-search i {
+            font-size: 18px;
+        }
+
+        /* Filters Section - Enhanced */
+        .filters-section {
+            background: white;
+            margin: 20px 5%;
+            padding: 24px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1a202c;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .filters-section h3 i {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-group select {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 2px solid #edf2f7;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #1a202c;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .price-range {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .price-range input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        .price-range input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s;
+        }
+
+        .price-range input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .price-range span {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+            min-width: 70px;
+        }
+
+        .amenities-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .amenity-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4a5568;
+            padding: 6px 12px;
+            background: #f8fafc;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+
+        .amenity-checkbox:hover {
+            background: #edf2f7;
+        }
+
+        .amenity-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        /* Results Section */
+        .results-section {
+            margin: 30px 5% 50px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .results-header h2 {
+            color: #1a202c;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .sort-options {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sort-options span {
+            color: #718096;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sort-btn {
+            padding: 8px 18px;
+            border: 2px solid #edf2f7;
+            background: white;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sort-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .sort-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px -5px rgba(102, 126, 234, 0.5);
+        }
+
+        .bus-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .bus-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 24px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #edf2f7;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bus-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bus-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -15px rgba(102, 126, 234, 0.3);
+        }
+
+        .bus-card:hover::before {
+            opacity: 1;
+        }
+
+        .bus-image {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bus-image i {
+            font-size: 48px;
+            color: #667eea;
+        }
+
+        .bus-info {
+            flex: 1;
+        }
+
+        .bus-info h3 {
+            font-size: 22px;
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .bus-info p {
+            color: #718096;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bus-info p i {
+            color: #fbbf24;
+            font-size: 14px;
+        }
+
+        .bus-amenities {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .bus-amenities span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #f8fafc;
+            border-radius: 30px;
+            color: #4a5568;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .bus-amenities i {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .bus-details {
+            display: flex;
+            gap: 32px;
+            margin-top: 16px;
+        }
+
+        .time-info {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .time-info .time {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a202c;
+            line-height: 1.2;
+        }
+
+        .time-info .duration {
+            color: #718096;
+            font-size: 13px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .fare-info {
+            text-align: right;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .fare-info .fare {
+            font-size: 32px;
+            font-weight: 800;
+            color: #27ae60;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .fare-info .seats-available {
+            color: #27ae60;
+            font-size: 14px;
+            margin: 10px 0;
+            font-weight: 600;
+            background: #f0fff4;
+            padding: 4px 12px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .btn-select {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-select:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -8px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-select i {
+            font-size: 16px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 40px 0;
+        }
+
+        .page-link {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #edf2f7;
+            background: white;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-link:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .page-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .page-link i {
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .search-form {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .btn-search {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .bus-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .bus-image {
+                margin: 0 auto;
+            }
+            
+            .bus-details {
+                justify-content: center;
+            }
+            
+            .fare-info {
+                text-align: center;
+                align-items: center;
+            }
+            
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                height: auto;
+                padding: 16px 5%;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 16px;
+            }
+            
+            .search-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                justify-content: center;
+                padding: 10px;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-search {
+                grid-column: auto;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .sort-options {
+                flex-wrap: wrap;
+            }
+            
+            .bus-amenities {
+                justify-content: center;
+            }
+            
+            .bus-details {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bus-card {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-bus"></i>
+            <span>BusYatra</span>
+        </a>
+        <ul class="nav-menu">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/search"><i class="fas fa-search"></i> Search</a></li>
+            <li><a href="/my-bookings"><i class="fas fa-ticket-alt"></i> My Bookings</a></li>
+            <li><a href="/offers"><i class="fas fa-tags"></i> Offers</a></li>
+            <li><a href="/login"><i class="fas fa-user"></i> Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="search-section">
+        <div class="search-tabs">
+            <div class="tab active"><i class="fas fa-bus"></i> One Way</div>
+            <div class="tab"><i class="fas fa-exchange-alt"></i> Round Trip</div>
+            <div class="tab"><i class="fas fa-clock"></i> Flexible</div>
+            <div class="tab"><i class="fas fa-calendar-alt"></i> Monthly Pass</div>
+        </div>
+
+        <form class="search-form" id="searchForm">
+            <div class="form-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="from" placeholder="From" value="Kathmandu">
+            </div>
+            <div class="form-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="to" placeholder="To" value="Pokhara">
+            </div>
+            <div class="form-group">
+                <i class="fas fa-calendar"></i>
+                <input type="date" id="date">
+            </div>
+            <button type="submit" class="btn-search"><i class="fas fa-search"></i> Search Buses</button>
+        </form>
+    </div>
+
+    <div class="filters-section">
+        <h3><i class="fas fa-filter"></i> Filter Results</h3>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label>Bus Type</label>
+                <select id="busType">
+                    <option value="">All Types</option>
+                    <option value="AC">AC</option>
+                    <option value="Non-AC">Non-AC</option>
+                    <option value="Sleeper">Sleeper</option>
+                    <option value="AC Sleeper">AC Sleeper</option>
+                    <option value="Luxury">Luxury</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Departure Time</label>
+                <select id="departureTime">
+                    <option value="">Any Time</option>
+                    <option value="morning">Morning (6AM - 12PM)</option>
+                    <option value="afternoon">Afternoon (12PM - 6PM)</option>
+                    <option value="evening">Evening (6PM - 12AM)</option>
+                    <option value="night">Night (12AM - 6AM)</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Price Range</label>
+                <div class="price-range">
+                    <input type="range" id="priceRange" min="0" max="5000" value="5000">
+                    <span>रू <span id="priceValue">5000</span></span>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>Amenities</label>
+                <div class="amenities-filter">
+                    <label class="amenity-checkbox">
+                        <input type="checkbox" value="wifi"> WiFi
+                    </label>
+                    <label class="amenity-checkbox">
+                        <input type="checkbox" value="charging"> Charging
+                    </label>
+                    <label class="amenity-checkbox">
+                        <input type="checkbox" value="snacks"> Snacks
+                    </label>
+                    <label class="amenity-checkbox">
+                        <input type="checkbox" value="movie"> Movie
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-section">
+        <div class="results-header">
+            <h2><i class="fas fa-bus" style="color: #667eea; margin-right: 8px;"></i> 12 buses found</h2>
+            <div class="sort-options">
+                <span>Sort by:</span>
+                <button class="sort-btn active">Price</button>
+                <button class="sort-btn">Departure</button>
+                <button class="sort-btn">Duration</button>
+                <button class="sort-btn">Rating</button>
+            </div>
+        </div>
+
+        <div class="bus-list" id="busList">
+            <!-- Bus cards will be dynamically loaded -->
+        </div>
+
+        <div class="pagination">
+            <button class="page-link"><i class="fas fa-chevron-left"></i></button>
+            <button class="page-link active">1</button>
+            <button class="page-link">2</button>
+            <button class="page-link">3</button>
+            <button class="page-link">4</button>
+            <button class="page-link">5</button>
+            <button class="page-link"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Set date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+
+        // Sample bus data
+        const buses = [
+            {
+                id: 1,
+                name: 'Sagarmatha Deluxe',
+                type: 'AC Sleeper',
+                rating: 4.5,
+                departure: '06:00',
+                arrival: '13:00',
+                duration: '7h',
+                fare: 1200,
+                seats: 24,
+                totalSeats: 40,
+                amenities: ['wifi', 'charging', 'snacks', 'blanket']
+            },
+            {
+                id: 2,
+                name: 'Himalayan Travels',
+                type: 'AC Seater',
+                rating: 4.2,
+                departure: '08:30',
+                arrival: '15:30',
+                duration: '7h',
+                fare: 1000,
+                seats: 32,
+                totalSeats: 50,
+                amenities: ['wifi', 'charging', 'movie']
+            },
+            {
+                id: 3,
+                name: 'Annapurna Express',
+                type: 'Non-AC Seater',
+                rating: 4.0,
+                departure: '14:00',
+                arrival: '21:00',
+                duration: '7h',
+                fare: 800,
+                seats: 15,
+                totalSeats: 45,
+                amenities: ['charging']
+            },
+            {
+                id: 4,
+                name: 'Machhapuchhre Luxury',
+                type: 'AC Sleeper',
+                rating: 4.8,
+                departure: '21:00',
+                arrival: '04:00',
+                duration: '7h',
+                fare: 1500,
+                seats: 8,
+                totalSeats: 36,
+                amenities: ['wifi', 'charging', 'snacks', 'blanket', 'movie']
+            },
+            {
+                id: 5,
+                name: 'Lumbini Buddha Express',
+                type: 'AC Seater',
+                rating: 4.3,
+                departure: '07:15',
+                arrival: '14:15',
+                duration: '7h',
+                fare: 1100,
+                seats: 18,
+                totalSeats: 42,
+                amenities: ['wifi', 'charging', 'snacks']
+            }
+        ];
+
+        // Display buses
+        function displayBuses() {
+            const busList = document.getElementById('busList');
+            busList.innerHTML = '';
+
+            buses.forEach(bus => {
+                const busCard = `
+                    <div class="bus-card">
+                        <div class="bus-image">
+                            <i class="fas fa-bus"></i>
+                        </div>
+                        <div class="bus-info">
+                            <h3>${bus.name}</h3>
+                            <p><i class="fas fa-star"></i> ${bus.rating} (120 reviews) • ${bus.type}</p>
+                            <div class="bus-amenities">
+                                ${bus.amenities.includes('wifi') ? '<span><i class="fas fa-wifi"></i> WiFi</span>' : ''}
+                                ${bus.amenities.includes('charging') ? '<span><i class="fas fa-battery-three-quarters"></i> Charging</span>' : ''}
+                                ${bus.amenities.includes('snacks') ? '<span><i class="fas fa-utensils"></i> Snacks</span>' : ''}
+                                ${bus.amenities.includes('blanket') ? '<span><i class="fas fa-blanket"></i> Blanket</span>' : ''}
+                                ${bus.amenities.includes('movie') ? '<span><i class="fas fa-film"></i> Movie</span>' : ''}
+                            </div>
+                            <div class="bus-details">
+                                <div class="time-info">
+                                    <div class="time">${bus.departure}</div>
+                                    <div class="duration">Departure</div>
+                                </div>
+                                <div class="time-info">
+                                    <div class="time">${bus.arrival}</div>
+                                    <div class="duration">Arrival</div>
+                                </div>
+                                <div class="time-info">
+                                    <div class="time">${bus.duration}</div>
+                                    <div class="duration">Duration</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fare-info">
+                            <div class="fare">रू ${bus.fare}</div>
+                            <div class="seats-available">${bus.seats} seats left</div>
+                            <a href="/seat-selection?busId=${bus.id}" class="btn-select"><i class="fas fa-chair"></i> Select Seats</a>
+                        </div>
+                    </div>
+                `;
+                busList.innerHTML += busCard;
+            });
+        }
+
+        // Initial display
+        displayBuses();
+
+        // Price range slider
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        
+        priceRange.addEventListener('input', function() {
+            priceValue.textContent = this.value;
+        });
+
+        // Sort buttons
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Add sorting logic here
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('select, input[type="checkbox"]').forEach(filter => {
+            filter.addEventListener('change', function() {
+                // Add filter logic here
+                console.log('Filter changed');
+            });
+        });
+
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Searching for buses...');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bus Booking System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="admin-dashboard">
+            <div class="sidebar">
+                <h3>Admin Panel</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="/admin/dashboard" class="active">Dashboard</a></li>
+                    <li><a href="/admin/buses">Manage Buses</a></li>
+                    <li><a href="/admin/routes">Manage Routes</a></li>
+                    <li><a href="/admin/schedules">Manage Schedules</a></li>
+                    <li><a href="#" onclick="viewAllBookings()">All Bookings</a></li>
+                </ul>
+            </div>
+            
+            <div class="content">
+                <h2>Dashboard</h2>
+                
+                <div class="stats-grid" id="stats">
+                    <!-- Stats will be loaded here -->
+                    <div class="spinner"></div>
+                </div>
+                
+                <h3 style="margin: 2rem 0 1rem;">Recent Bookings</h3>
+                <div id="recentBookings">
+                    <!-- Recent bookings will be loaded here -->
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        async function loadDashboard() {
+            try {
+                const data = await API.get('/admin/dashboard');
+                
+                // Display stats
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card">
+                        <h3>Total Buses</h3>
+                        <div class="stat-number">${data.totalBuses}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Routes</h3>
+                        <div class="stat-number">${data.totalRoutes}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Bookings</h3>
+                        <div class="stat-number">${data.totalBookings}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <div class="stat-number">${data.totalUsers}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Today's Bookings</h3>
+                        <div class="stat-number">${data.todayBookings}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Revenue</h3>
+                        <div class="stat-number">${formatCurrency(data.totalRevenue)}</div>
+                    </div>
+                `;
+                
+                // Display recent bookings
+                if (data.recentBookings && data.recentBookings.length > 0) {
+                    let bookingsHtml = '<table class="data-table"><thead><tr><th>Booking ID</th><th>User</th><th>Bus</th><th>Route</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+                    
+                    data.recentBookings.forEach(booking => {
+                        bookingsHtml += `
+                            <tr>
+                                <td>${booking.bookingId}</td>
+                                <td>${booking.user?.name || 'N/A'}</td>
+                                <td>${booking.schedule?.bus?.busName || 'N/A'}</td>
+                                <td>${booking.schedule?.route?.source || 'N/A'} → ${booking.schedule?.route?.destination || 'N/A'}</td>
+                                <td>${formatCurrency(booking.totalFare)}</td>
+                                <td><span style="color: ${booking.status === 'Confirmed' ? '#27ae60' : '#e74c3c'}">${booking.status}</span></td>
+                                <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    bookingsHtml += '</tbody></table>';
+                    document.getElementById('recentBookings').innerHTML = bookingsHtml;
+                } else {
+                    document.getElementById('recentBookings').innerHTML = '<p>No recent bookings</p>';
+                }
+                
+            } catch (error) {
+                document.getElementById('stats').innerHTML = `<p class="alert alert-error">Error loading dashboard: ${error.message}</p>`;
+                document.getElementById('recentBookings').innerHTML = '';
+            }
+        }
+        
+        function viewAllBookings() {
+            window.location.href = '/admin/bookings';
+        }
+        
+        // Load dashboard on page load
+        loadDashboard();
+    </script>
+</body>
+</html>

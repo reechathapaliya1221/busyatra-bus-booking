@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Bus Booking System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Enter Passenger Details</h2>
+        
+        <div class="booking-summary" id="bookingSummary">
+            <!-- Booking summary will be loaded here -->
+        </div>
+
+        <form id="passengerForm">
+            <div id="passengerForms">
+                <!-- Passenger forms will be dynamically added here -->
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem;">Proceed to Payment</button>
+            </div>
+        </form>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Get data from localStorage
+        const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats') || '[]');
+        const scheduleId = localStorage.getItem('scheduleId');
+        const totalFare = localStorage.getItem('totalFare');
+
+        // Redirect if no seats selected
+        if (!selectedSeats.length || !scheduleId) {
+            window.location.href = '/search';
+        }
+
+        let scheduleData = null;
+
+        // Load booking summary
+        async function loadBookingSummary() {
+            try {
+                scheduleData = await API.get(`/buses/${scheduleId}`);
+                
+                const departureTime = new Date(scheduleData.departureTime).toLocaleString();
+                const arrivalTime = new Date(scheduleData.arrivalTime).toLocaleString();
+                
+                document.getElementById('bookingSummary').innerHTML = `
+                    <h3>Booking Summary</h3>
+                    <div class="summary-item">
+                        <span>Bus:</span>
+                        <span><strong>${scheduleData.bus.busName} (${scheduleData.bus.busNumber})</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Route:</span>
+                        <span><strong>${scheduleData.route.source} → ${scheduleData.route.destination}</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Journey Date:</span>
+                        <span><strong>${new Date(scheduleData.departureTime).toLocaleDateString()}</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Departure:</span>
+                        <span><strong>${formatTime(scheduleData.departureTime)}</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Arrival:</span>
+                        <span><strong>${formatTime(scheduleData.arrivalTime)}</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Selected Seats:</span>
+                        <span><strong>${selectedSeats.join(', ')}</strong></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Number of Passengers:</span>
+                        <span><strong>${selectedSeats.length}</strong></span>
+                    </div>
+                    <div class="summary-item total-amount">
+                        <span>Total Fare:</span>
+                        <span><strong>${formatCurrency(parseInt(totalFare))}</strong></span>
+                    </div>
+                `;
+
+                // Generate passenger forms
+                generatePassengerForms();
+                
+            } catch (error) {
+                showAlert('Error loading booking details: ' + error.message, 'error');
+            }
+        }
+
+        // Generate passenger forms based on selected seats
+        function generatePassengerForms() {
+            const container = document.getElementById('passengerForms');
+            let html = '<h3>Passenger Details</h3>';
+            
+            selectedSeats.forEach((seat, index) => {
+                html += `
+                    <div class="passenger-form">
+                        <h4>Passenger ${index + 1} - Seat ${seat}</h4>
+                        <div class="form-group">
+                            <label for="passenger${index}Name">Full Name</label>
+                            <input type="text" id="passenger${index}Name" class="passenger-name" data-index="${index}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="passenger${index}Age">Age</label>
+                            <input type="number" id="passenger${index}Age" class="passenger-age" data-index="${index}" min="1" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="passenger${index}Gender">Gender</label>
+                            <select id="passenger${index}Gender" class="passenger-gender" data-index="${index}" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Handle form submission
+        document.getElementById('passengerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Collect passenger data
+            const passengers = [];
+            let isValid = true;
+            
+            selectedSeats.forEach((seat, index) => {
+                const name = document.getElementById(`passenger${index}Name`).value;
+                const age = document.getElementById(`passenger${index}Age`).value;
+                const gender = document.getElementById(`passenger${index}Gender`).value;
+                
+                if (!name || !age || !gender) {
+                    isValid = false;
+                    showAlert(`Please fill details for Passenger ${index + 1}`, 'error');
+                    return;
+                }
+                
+                passengers.push({
+                    name,
+                    age: parseInt(age),
+                    gender,
+                    seatNumber: seat
+                });
+            });
+            
+            if (!isValid) return;
+            
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (!user) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const bookingData = {
+                    scheduleId,
+                    passengers,
+                    journeyDate: scheduleData.departureTime
+                };
+                
+                showLoading('passengerForm');
+                
+                const response = await API.post('/bookings', bookingData);
+                
+                hideLoading('passengerForm');
+                
+                // Store booking info for payment
+                localStorage.setItem('currentBooking', JSON.stringify({
+                    bookingId: response.bookingId,
+                    totalFare: parseInt(totalFare)
+                }));
+                
+                showAlert('Booking created successfully! Redirecting to payment...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '/payment';
+                }, 2000);
+                
+            } catch (error) {
+                hideLoading('passengerForm');
+                showAlert('Error creating booking: ' + error.message, 'error');
+            }
+        });
+
+        // Load booking summary on page load
+        loadBookingSummary();
+    </script>
+</body>
+</html>

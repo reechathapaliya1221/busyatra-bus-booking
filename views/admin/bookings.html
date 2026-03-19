@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Bookings - Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="admin-dashboard">
+            <div class="sidebar">
+                <h3>Admin Panel</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/buses">Manage Buses</a></li>
+                    <li><a href="/admin/routes">Manage Routes</a></li>
+                    <li><a href="/admin/schedules">Manage Schedules</a></li>
+                    <li><a href="/admin/bookings" class="active">All Bookings</a></li>
+                </ul>
+            </div>
+            
+            <div class="content">
+                <h2 style="margin-bottom: 2rem;">All Bookings</h2>
+                
+                <div class="search-box" style="margin-bottom: 2rem;">
+                    <form class="search-form" id="searchForm">
+                        <div class="form-group">
+                            <input type="text" id="searchInput" placeholder="Search by Booking ID, User, Bus...">
+                        </div>
+                        <button type="submit" class="btn">Search</button>
+                    </form>
+                </div>
+                
+                <div id="bookingsList">
+                    <!-- Bookings list will be loaded here -->
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Booking Details</h2>
+            <div id="bookingDetails">
+                <!-- Booking details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let allBookings = [];
+
+        async function loadBookings() {
+            try {
+                allBookings = await API.get('/admin/bookings');
+                displayBookings(allBookings);
+            } catch (error) {
+                document.getElementById('bookingsList').innerHTML = `<p class="alert alert-error">Error loading bookings: ${error.message}</p>`;
+            }
+        }
+
+        function displayBookings(bookings) {
+            if (bookings.length === 0) {
+                document.getElementById('bookingsList').innerHTML = '<p class="alert alert-info">No bookings found.</p>';
+                return;
+            }
+            
+            let html = '<table class="data-table"><thead><tr><th>Booking ID</th><th>User</th><th>Bus</th><th>Route</th><th>Journey Date</th><th>Amount</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead><tbody>';
+            
+            bookings.forEach(booking => {
+                const statusColor = booking.status === 'Confirmed' ? '#27ae60' : 
+                                   booking.status === 'Cancelled' ? '#e74c3c' : '#f39c12';
+                
+                html += `
+                    <tr>
+                        <td>${booking.bookingId}</td>
+                        <td>${booking.user?.name || 'N/A'}<br><small>${booking.user?.email || ''}</small></td>
+                        <td>${booking.schedule?.bus?.busName || 'N/A'}</td>
+                        <td>${booking.schedule?.route?.source || 'N/A'} → ${booking.schedule?.route?.destination || 'N/A'}</td>
+                        <td>${new Date(booking.journeyDate).toLocaleDateString()}</td>
+                        <td>${formatCurrency(booking.totalFare)}</td>
+                        <td><span style="color: ${statusColor};">${booking.status}</span></td>
+                        <td><span style="color: ${booking.paymentStatus === 'Completed' ? '#27ae60' : '#e74c3c'};">${booking.paymentStatus}</span></td>
+                        <td class="actions">
+                            <button class="btn btn-small" onclick="viewBooking('${booking.bookingId}')">View</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('bookingsList').innerHTML = html;
+        }
+
+        async function viewBooking(bookingId) {
+            try {
+                const booking = await API.get(`/bookings/${bookingId}`);
+                
+                let passengersHtml = '<h4 style="margin-top: 1rem;">Passengers</h4>';
+                passengersHtml += '<table class="data-table"><thead><tr><th>Seat</th><th>Name</th><th>Age</th><th>Gender</th></tr></thead><tbody>';
+                
+                booking.passengers.forEach(passenger => {
+                    passengersHtml += `
+                        <tr>
+                            <td>${passenger.seatNumber}</td>
+                            <td>${passenger.name}</td>
+                            <td>${passenger.age}</td>
+                            <td>${passenger.gender}</td>
+                        </tr>
+                    `;
+                });
+                
+                passengersHtml += '</tbody></table>';
+                
+                const detailsHtml = `
+                    <div style="margin-top: 1rem;">
+                        <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+                        <p><strong>User:</strong> ${booking.user.name} (${booking.user.email})</p>
+                        <p><strong>Phone:</strong> ${booking.user.phone}</p>
+                        <p><strong>Booking Date:</strong> ${new Date(booking.bookingDate).toLocaleString()}</p>
+                        <p><strong>Journey Date:</strong> ${new Date(booking.journeyDate).toLocaleDateString()}</p>
+                        <p><strong>Bus:</strong> ${booking.schedule.bus.busName} (${booking.schedule.bus.busNumber})</p>
+                        <p><strong>Route:</strong> ${booking.schedule.route.source} → ${booking.schedule.route.destination}</p>
+                        <p><strong>Departure:</strong> ${new Date(booking.schedule.departureTime).toLocaleString()}</p>
+                        <p><strong>Arrival:</strong> ${new Date(booking.schedule.arrivalTime).toLocaleString()}</p>
+                        <p><strong>Total Fare:</strong> ${formatCurrency(booking.totalFare)}</p>
+                        <p><strong>Status:</strong> ${booking.status}</p>
+                        <p><strong>Payment Status:</strong> ${booking.paymentStatus}</p>
+                        
+                        ${passengersHtml}
+                    </div>
+                `;
+                
+                document.getElementById('bookingDetails').innerHTML = detailsHtml;
+                document.getElementById('bookingModal').style.display = 'block';
+                
+            } catch (error) {
+                showAlert('Error loading booking details: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+        }
+
+        // Search functionality
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayBookings(allBookings);
+                return;
+            }
+            
+            const filtered = allBookings.filter(booking => 
+                booking.bookingId.toLowerCase().includes(searchTerm) ||
+                booking.user?.name?.toLowerCase().includes(searchTerm) ||
+                booking.user?.email?.toLowerCase().includes(searchTerm) ||
+                booking.schedule?.bus?.busName?.toLowerCase().includes(searchTerm) ||
+                booking.schedule?.bus?.busNumber?.toLowerCase().includes(searchTerm)
+            );
+            
+            displayBookings(filtered);
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load bookings on page load
+        loadBookings();
+    </script>
+</body>
+</html>

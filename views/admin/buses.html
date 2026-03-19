@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Buses - Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="admin-dashboard">
+            <div class="sidebar">
+                <h3>Admin Panel</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/buses" class="active">Manage Buses</a></li>
+                    <li><a href="/admin/routes">Manage Routes</a></li>
+                    <li><a href="/admin/schedules">Manage Schedules</a></li>
+                    <li><a href="/admin/bookings">All Bookings</a></li>
+                </ul>
+            </div>
+            
+            <div class="content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Manage Buses</h2>
+                    <button class="btn btn-primary" onclick="showAddBusModal()">Add New Bus</button>
+                </div>
+                
+                <div id="busesList">
+                    <!-- Buses list will be loaded here -->
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Bus Modal -->
+    <div id="busModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Bus</h2>
+            <form id="busForm">
+                <input type="hidden" id="busId">
+                
+                <div class="form-group">
+                    <label for="busNumber">Bus Number</label>
+                    <input type="text" id="busNumber" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="busName">Bus Name</label>
+                    <input type="text" id="busName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="busType">Bus Type</label>
+                    <select id="busType" required>
+                        <option value="">Select Type</option>
+                        <option value="AC">AC</option>
+                        <option value="Non-AC">Non-AC</option>
+                        <option value="Sleeper">Sleeper</option>
+                        <option value="Seater">Seater</option>
+                        <option value="AC Sleeper">AC Sleeper</option>
+                        <option value="AC Seater">AC Seater</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="totalSeats">Total Seats</label>
+                    <input type="number" id="totalSeats" min="20" max="60" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Amenities (Hold Ctrl to select multiple)</label>
+                    <select id="amenities" multiple style="height: 120px;">
+                        <option value="WiFi">WiFi</option>
+                        <option value="Charging Point">Charging Point</option>
+                        <option value="Water Bottle">Water Bottle</option>
+                        <option value="Blanket">Blanket</option>
+                        <option value="Movie">Movie</option>
+                        <option value="Snacks">Snacks</option>
+                    </select>
+                </div>
+                
+                <div style="text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Bus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        async function loadBuses() {
+            try {
+                const buses = await API.get('/admin/buses');
+                
+                if (buses.length === 0) {
+                    document.getElementById('busesList').innerHTML = '<p class="alert alert-info">No buses found. Click "Add New Bus" to create one.</p>';
+                    return;
+                }
+                
+                let html = '<table class="data-table"><thead><tr><th>Bus Number</th><th>Name</th><th>Type</th><th>Seats</th><th>Amenities</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                
+                buses.forEach(bus => {
+                    html += `
+                        <tr>
+                            <td>${bus.busNumber}</td>
+                            <td>${bus.busName}</td>
+                            <td>${bus.busType}</td>
+                            <td>${bus.totalSeats}</td>
+                            <td>${bus.amenities ? bus.amenities.join(', ') : '-'}</td>
+                            <td><span style="color: ${bus.isActive ? '#27ae60' : '#e74c3c'};">${bus.isActive ? 'Active' : 'Inactive'}</span></td>
+                            <td class="actions">
+                                <button class="btn btn-small" onclick="editBus('${bus._id}')">Edit</button>
+                                <button class="btn btn-small btn-danger" onclick="deleteBus('${bus._id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                document.getElementById('busesList').innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('busesList').innerHTML = `<p class="alert alert-error">Error loading buses: ${error.message}</p>`;
+            }
+        }
+
+        function showAddBusModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Bus';
+            document.getElementById('busForm').reset();
+            document.getElementById('busId').value = '';
+            document.getElementById('busModal').style.display = 'block';
+        }
+
+        async function editBus(id) {
+            try {
+                const buses = await API.get('/admin/buses');
+                const bus = buses.find(b => b._id === id);
+                
+                if (bus) {
+                    document.getElementById('modalTitle').textContent = 'Edit Bus';
+                    document.getElementById('busId').value = bus._id;
+                    document.getElementById('busNumber').value = bus.busNumber;
+                    document.getElementById('busName').value = bus.busName;
+                    document.getElementById('busType').value = bus.busType;
+                    document.getElementById('totalSeats').value = bus.totalSeats;
+                    
+                    // Select amenities
+                    const amenitiesSelect = document.getElementById('amenities');
+                    Array.from(amenitiesSelect.options).forEach(option => {
+                        option.selected = bus.amenities?.includes(option.value);
+                    });
+                    
+                    document.getElementById('busModal').style.display = 'block';
+                }
+            } catch (error) {
+                showAlert('Error loading bus details: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteBus(id) {
+            if (!confirm('Are you sure you want to delete this bus?')) {
+                return;
+            }
+            
+            try {
+                await API.delete(`/admin/buses/${id}`);
+                showAlert('Bus deleted successfully', 'success');
+                loadBuses();
+            } catch (error) {
+                showAlert('Error deleting bus: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('busModal').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('busForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const busData = {
+                busNumber: document.getElementById('busNumber').value,
+                busName: document.getElementById('busName').value,
+                busType: document.getElementById('busType').value,
+                totalSeats: parseInt(document.getElementById('totalSeats').value),
+                amenities: Array.from(document.getElementById('amenities').selectedOptions).map(opt => opt.value)
+            };
+            
+            const busId = document.getElementById('busId').value;
+            
+            try {
+                if (busId) {
+                    await API.put(`/admin/buses/${busId}`, busData);
+                    showAlert('Bus updated successfully', 'success');
+                } else {
+                    await API.post('/admin/buses', busData);
+                    showAlert('Bus created successfully', 'success');
+                }
+                
+                closeModal();
+                loadBuses();
+            } catch (error) {
+                showAlert('Error saving bus: ' + error.message, 'error');
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('busModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load buses on page load
+        loadBuses();
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats - Bus Booking System</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .bus-layout-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .driver-seat {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #e74c3c;
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .bus-info-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .seat-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+        }
+        
+        .legend-box.available {
+            background: white;
+            border: 2px solid #3498db;
+        }
+        
+        .legend-box.selected {
+            background: #2ecc71;
+            border: 2px solid #27ae60;
+        }
+        
+        .legend-box.booked {
+            background: #e74c3c;
+            border: 2px solid #c0392b;
+        }
+        
+        .selected-seats-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .gap {
+            margin: 0 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">BusBooking System</a>
+        </div>
+        <ul class="nav-menu">
+            <!-- Will be populated by JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Select Your Seats</h2>
+        
+        <div id="busDetails" class="bus-info-header"></div>
+        
+        <div class="seat-legend">
+            <div class="legend-item">
+                <div class="legend-box available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box selected"></div>
+                <span>Selected</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box booked"></div>
+                <span>Booked</span>
+            </div>
+        </div>
+        
+        <div class="bus-layout-container">
+            <div class="driver-seat">Driver</div>
+            <div id="seatLayout" class="seat-layout"></div>
+        </div>
+        
+        <div class="selected-seats-info">
+            <h3>Selected Seats</h3>
+            <div id="selectedSeatsList" style="font-size: 1.2rem; margin: 1rem 0;">No seats selected</div>
+            <div style="font-size: 1.2rem; margin: 1rem 0;">
+                Total Fare: <span id="totalFare">0</span>
+            </div>
+            <button id="continueBtn" class="btn btn-primary" style="padding: 1rem 3rem;" disabled>Continue to Booking</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Bus Booking System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const scheduleId = urlParams.get('scheduleId');
+        
+        if (!scheduleId) {
+            window.location.href = '/search';
+        }
+
+        const selectedSeats = new Set();
+        let busFare = 0;
+
+        async function loadSeatLayout() {
+            try {
+                showLoading('seatLayout');
+                
+                const data = await API.get(`/buses/${scheduleId}/seats`);
+                
+                hideLoading('seatLayout');
+                
+                document.getElementById('busDetails').innerHTML = `
+                    <h3>${data.busName} (${data.busType})</h3>
+                    <p>Total Seats: ${data.totalSeats} • Please select your seats</p>
+                `;
+                
+                let html = '';
+                data.rows.forEach((row, index) => {
+                    html += '<div class="seat-row">';
+                    row.forEach((seat, seatIndex) => {
+                        const seatClass = seat.isAvailable ? 'available' : 'booked';
+                        html += `<div class="seat ${seatClass}" data-seat="${seat.seatNumber}">${seat.seatNumber}</div>`;
+                        
+                        // Add gap after 2 seats (for aisle)
+                        if (seatIndex === 1) {
+                            html += '<div class="gap"></div>';
+                        }
+                    });
+                    html += '</div>';
+                    
+                    // Add aisle after every 2 rows
+                    if ((index + 1) % 2 === 0 && index < data.rows.length - 1) {
+                        html += '<div style="height: 20px;"></div>';
+                    }
+                });
+                
+                document.getElementById('seatLayout').innerHTML = html;
+                
+                // Add click handlers to available seats
+                document.querySelectorAll('.seat.available').forEach(seat => {
+                    seat.addEventListener('click', toggleSeat);
+                });
+                
+                // Store fare information (will need to get from schedule)
+                const scheduleData = await API.get(`/buses/${scheduleId}`);
+                busFare = scheduleData.fare;
+                
+            } catch (error) {
+                hideLoading('seatLayout');
+                showAlert(error.message, 'error');
+                document.getElementById('seatLayout').innerHTML = `<p class="alert alert-error">Error loading seats: ${error.message}</p>`;
+            }
+        }
+        
+        function toggleSeat(e) {
+            const seat = e.target;
+            const seatNumber = parseInt(seat.dataset.seat);
+            
+            if (selectedSeats.has(seatNumber)) {
+                selectedSeats.delete(seatNumber);
+                seat.classList.remove('selected');
+            } else {
+                if (selectedSeats.size < 6) { // Max 6 seats per booking
+                    selectedSeats.add(seatNumber);
+                    seat.classList.add('selected');
+                } else {
+                    showAlert('You can select maximum 6 seats per booking', 'error');
+                }
+            }
+            
+            updateSelectedSeats();
+        }
+        
+        function updateSelectedSeats() {
+            const list = document.getElementById('selectedSeatsList');
+            const continueBtn = document.getElementById('continueBtn');
+            const totalFareSpan = document.getElementById('totalFare');
+            
+            if (selectedSeats.size === 0) {
+                list.innerHTML = 'No seats selected';
+                continueBtn.disabled = true;
+                totalFareSpan.textContent = formatCurrency(0);
+            } else {
+                const seatsArray = Array.from(selectedSeats).sort((a, b) => a - b);
+                list.innerHTML = `Seats: ${seatsArray.join(', ')}`;
+                totalFareSpan.textContent = formatCurrency(busFare * selectedSeats.size);
+                continueBtn.disabled = false;
+            }
+        }
+        
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            const seats = Array.from(selectedSeats);
+            localStorage.setItem('selectedSeats', JSON.stringify(seats));
+            localStorage.setItem('scheduleId', scheduleId);
+            localStorage.setItem('totalFare', (busFare * selectedSeats.size).toString());
+            window.location.href = '/booking';
+        });
+        
+        // Load seat layout on page load
+        loadSeatLayout();
+    </script>
+</body>
+</html>

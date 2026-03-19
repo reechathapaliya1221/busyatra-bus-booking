@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - BusYatra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .confirmation-card {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: #27ae60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            color: white;
+            animation: scaleIn 0.5s ease 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .booking-info {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .ticket {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            border: 2px dashed #667eea;
+        }
+
+        .ticket::before,
+        .ticket::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .ticket::before {
+            left: -10px;
+        }
+
+        .ticket::after {
+            right: -10px;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-route {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .ticket-id {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .ticket-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .detail {
+            padding: 0.5rem;
+        }
+
+        .detail .time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail .label {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .passenger-list {
+            margin-top: 1rem;
+        }
+
+        .passenger-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .passenger-item.header {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .qr-code i {
+            font-size: 8rem;
+            color: #333;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-card {
+                padding: 1.5rem;
+            }
+            
+            .ticket-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-card">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h1>Booking Confirmed!</h1>
+        <p class="subtitle">Your bus tickets have been booked successfully</p>
+
+        <div class="booking-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Booking ID</div>
+                    <div class="info-value">BK2403117890</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Booked On</div>
+                    <div class="info-value">Mar 11, 2024 10:30 AM</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Paid</div>
+                    <div class="info-value">रू 2,570</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Payment Method</div>
+                    <div class="info-value">Credit Card</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ticket">
+            <div class="ticket-header">
+                <div class="ticket-route">
+                    <span>Kathmandu</span>
+                    <i class="fas fa-arrow-right" style="color: #667eea; margin: 0 1rem;"></i>
+                    <span>Pokhara</span>
+                </div>
+                <div class="ticket-id">#BK2403117890</div>
+            </div>
+
+            <div class="ticket-details">
+                <div class="detail">
+                    <div class="time">06:00 AM</div>
+                    <div class="label">Departure</div>
+                    <div style="font-size: 0.8rem;">Wed, Mar 11</div>
+                </div>
+                <div class="detail">
+                    <div class="time">01:00 PM</div>
+                    <div class="label">Arrival</div>
+                    <div style="font-size: 0.8rem;">Wed, Mar 11</div>
+                </div>
+                <div class="detail">
+                    <div class="time">7h</div>
+                    <div class="label">Duration</div>
+                </div>
+                <div class="detail">
+                    <div class="time">A1, A2</div>
+                    <div class="label">Seats</div>
+                </div>
+            </div>
+
+            <div class="passenger-list">
+                <div class="passenger-item header">
+                    <span>Passenger</span>
+                    <span>Age</span>
+                    <span>Gender</span>
+                    <span>Seat</span>
+                </div>
+                <div class="passenger-item">
+                    <span>Ram Sharma</span>
+                    <span>28</span>
+                    <span>Male</span>
+                    <span>A1</span>
+                </div>
+                <div class="passenger-item">
+                    <span>Sita Sharma</span>
+                    <span>25</span>
+                    <span>Female</span>
+                    <span>A2</span>
+                </div>
+            </div>
+
+            <div class="qr-code">
+                <i class="fas fa-qrcode"></i>
+                <p style="color: #666; margin-top: 0.5rem;">Show this QR code at boarding</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Ticket
+            </button>
+            <button class="btn btn-success" onclick="downloadTicket()">
+                <i class="fas fa-download"></i> Download PDF
+            </button>
+            <a href="/" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; color: #666;">
+            <i class="fas fa-envelope"></i> Confirmation sent to your email
+        </div>
+    </div>
+
+    <script>
+        function downloadTicket() {
+            alert('Ticket download started');
+            // In real app, this would generate and download PDF
+        }
+    </script>
+</body>
+</html>

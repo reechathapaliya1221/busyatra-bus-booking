@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusYatra - Nepal's Premier Bus Booking Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation - Perfect Height */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 0 5%;
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: #667eea;
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-menu li {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            height: 100%;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .nav-menu a i {
+            font-size: 16px;
+            color: #667eea;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            padding: 10px 28px !important;
+            border-radius: 40px;
+            height: 44px !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-login::after {
+            display: none;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login i {
+            color: white !important;
+        }
+
+        /* Hero Section - Perfect Dimensions */
+        .hero {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            padding: 0 8%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            color: white;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            opacity: 0.95;
+            max-width: 500px;
+            animation: fadeInUp 0.8s ease 0.2s;
+            animation-fill-mode: both;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 40px;
+            animation: fadeInUp 0.8s ease 0.4s;
+            animation-fill-mode: both;
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-size: 40px;
+            font-weight: 800;
+            display: block;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            width: 550px;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+        }
+
+        /* Search Section - Perfect Card */
+        .search-section {
+            background: white;
+            border-radius: 24px;
+            margin: -60px 8% 80px;
+            padding: 40px;
+            box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: all 0.3s;
+            color: #718096;
+            font-weight: 600;
+            font-size: 15px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+        }
+
+        .tab i {
+            font-size: 18px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 25px -8px rgba(102, 126, 234, 0.5);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group label i {
+            margin-right: 6px;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 56px;
+            padding: 0 16px 0 20px;
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+            color: #1a202c;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-group .input-icon {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            color: #a0aec0;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            height: 56px;
+            padding: 0 32px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            white-space: nowrap;
+            box-shadow: 0 10px 20px -8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-search i {
+            font-size: 18px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 8%;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .section-title h2 {
+            font-size: 40px;
+            color: #1a202c;
+            margin-bottom: 16px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title p {
+            color: #718096;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #edf2f7;
+            height: 100%;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 40px -20px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .feature-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            box-shadow: 0 15px 25px -8px rgba(102, 126, 234, 0.4);
+        }
+
+        .feature-icon i {
+            font-size: 38px;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 16px;
+            color: #1a202c;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: #718096;
+            line-height: 1.7;
+            font-size: 15px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        /* Popular Routes */
+        .popular-routes {
+            padding: 80px 8%;
+            background: #f8fafc;
+        }
+
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .route-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+            height: 110px;
+        }
+
+        .route-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 20px 30px -12px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .route-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 10px 15px -5px rgba(102, 126, 234, 0.3);
+        }
+
+        .route-icon i {
+            font-size: 26px;
+            color: white;
+        }
+
+        .route-info {
+            flex: 1;
+        }
+
+        .route-info h4 {
+            color: #1a202c;
+            margin-bottom: 6px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .route-info p {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .route-price {
+            font-weight: 800;
+            color: #667eea;
+            font-size: 20px;
+            white-space: nowrap;
+            background: #f0f4ff;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin-left: 8px;
+        }
+
+        /* Offers Section */
+        .offers {
+            padding: 80px 8%;
+            background: white;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .offer-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 36px;
+            border-radius: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 40px -15px rgba(102, 126, 234, 0.5);
+        }
+
+        .offer-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+        }
+
+        .offer-tag {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            width: fit-content;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .offer-card h3 {
+            font-size: 44px;
+            font-weight: 800;
+            margin: 20px 0 8px;
+            line-height: 1.1;
+        }
+
+        .offer-card p {
+            opacity: 0.95;
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 200px;
+        }
+
+        .btn-offer {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: fit-content;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-offer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 80px 8%;
+            background: #f8fafc;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 36px;
+            border-radius: 24px;
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #edf2f7;
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px -15px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .testimonial-avatar {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.3);
+        }
+
+        .testimonial-info {
+            flex: 1;
+        }
+
+        .testimonial-info h4 {
+            color: #1a202c;
+            margin-bottom: 6px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .rating {
+            color: #fbbf24;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        .rating i {
+            margin-right: 2px;
+        }
+
+        .testimonial-text {
+            color: #4a5568;
+            line-height: 1.8;
+            font-size: 15px;
+            font-style: italic;
+            flex: 1;
+            position: relative;
+            padding-left: 20px;
+            border-left: 3px solid #667eea;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0f172a;
+            color: white;
+            padding: 60px 8% 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 50px;
+            max-width: 1400px;
+            margin: 0 auto 50px;
+        }
+
+        .footer-section h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .footer-section p {
+            color: #94a3b8;
+            line-height: 1.8;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-4px);
+            border-color: transparent;
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 14px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer-links i {
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .contact-info {
+            list-style: none;
+        }
+
+        .contact-info li {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .contact-info i {
+            width: 20px;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            height: 48px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .newsletter-form input::placeholder {
+            color: #64748b;
+        }
+
+        .newsletter-form button {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .newsletter-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+            font-size: 14px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-bottom i {
+            color: #ff4d4d;
+            margin: 0 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-25px);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .feature-grid,
+            .routes-grid,
+            .offers-grid,
+            .testimonial-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .hero-content h1 {
+                font-size: 48px;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-section {
+                margin: -40px 5% 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                height: auto;
+                padding: 16px 5%;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 16px;
+                height: auto;
+            }
+            
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 40px;
+                min-height: auto;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+            }
+            
+            .hero-content h1 {
+                font-size: 36px;
+            }
+            
+            .hero-content p {
+                margin: 0 auto 32px;
+            }
+            
+            .hero-stats {
+                justify-content: center;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                text-align: center;
+            }
+            
+            .hero-image img {
+                width: 100%;
+                max-width: 400px;
+                margin-top: 40px;
+            }
+            
+            .search-section {
+                margin: 20px 5%;
+                padding: 24px;
+            }
+            
+            .search-tabs {
+                justify-content: center;
+            }
+            
+            .tab {
+                padding: 10px 20px;
+            }
+            
+            .feature-grid,
+            .routes-grid,
+            .offers-grid,
+            .testimonial-grid,
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .route-card {
+                height: auto;
+            }
+            
+            .offer-card {
+                height: 260px;
+            }
+            
+            .footer-section h3::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .footer-section {
+                text-align: center;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+            
+            .footer-links a {
+                justify-content: center;
+            }
+            
+            .contact-info li {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-bus"></i>
+            <span>BusYatra</span>
+        </a>
+        <ul class="nav-menu">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/search"><i class="fas fa-search"></i> Search Buses</a></li>
+            <li><a href="/my-bookings"><i class="fas fa-ticket-alt"></i> My Bookings</a></li>
+            <li><a href="/offers"><i class="fas fa-tags"></i> Offers</a></li>
+            <li><a href="/contact"><i class="fas fa-headset"></i> Support</a></li>
+            <li><a href="/login" class="btn-login"><i class="fas fa-user"></i> Login</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Nepal with<br>BusYatra</h1>
+            <p>Your trusted partner for comfortable and safe bus travel across Nepal. Book tickets from Kathmandu to Pokhara, Biratnagar, and beyond!</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">50K+</span>
+                    <span class="stat-label">Happy Travelers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">1K+</span>
+                    <span class="stat-label">Daily Trips</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100+</span>
+                    <span class="stat-label">Bus Partners</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://illustrations.popsy.co/amber/traveling.svg" alt="Bus Travel">
+        </div>
+        <div class="hero-bg"></div>
+    </section>
+
+    <section class="search-section">
+        <div class="search-tabs">
+            <div class="tab active">
+                <i class="fas fa-bus"></i>
+                <span>Bus Tickets</span>
+            </div>
+            <div class="tab">
+                <i class="fas fa-clock"></i>
+                <span>Round Trip</span>
+            </div>
+            <div class="tab">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Monthly Pass</span>
+            </div>
+            <div class="tab">
+                <i class="fas fa-building"></i>
+                <span>Charter Bus</span>
+            </div>
+        </div>
+
+        <form class="search-form" id="searchForm" action="/search" method="GET">
+            <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> From</label>
+                <input type="text" name="source" placeholder="Enter departure city" required>
+                <i class="fas fa-city input-icon"></i>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> To</label>
+                <input type="text" name="destination" placeholder="Enter destination city" required>
+                <i class="fas fa-city input-icon"></i>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar"></i> Journey Date</label>
+                <input type="date" name="date" required>
+                <i class="fas fa-calendar-day input-icon"></i>
+            </div>
+            <button type="submit" class="btn-search">
+                <i class="fas fa-search"></i> Search Buses
+            </button>
+        </form>
+    </section>
+
+    <section class="features">
+        <div class="section-title">
+            <h2>Why Choose BusYatra?</h2>
+            <p>Experience the best bus booking service in Nepal with these amazing features</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Easy Booking</h3>
+                <p>Book your tickets in just 3 simple steps. Choose your bus, select seats, and pay online - it's that easy!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure Payments</h3>
+                <p>100% secure payments with multiple options including Esewa, Khalti, Credit Card, and Net Banking.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>24/7 Support</h3>
+                <p>Our customer support team is available round the clock to assist you with any queries or issues.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3>Best Prices</h3>
+                <p>Get the best prices with exclusive discounts and offers. Save up to 30% on your bus bookings.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bus"></i>
+                </div>
+                <h3>Premium Fleet</h3>
+                <p>Choose from a wide range of AC, Non-AC, Sleeper, and Luxury buses from top operators.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>Live Tracking</h3>
+                <p>Track your bus in real-time with our GPS-enabled bus tracking system.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="popular-routes">
+        <div class="section-title">
+            <h2>Popular Routes in Nepal</h2>
+            <p>Most searched bus routes by our travelers</p>
+        </div>
+        <div class="routes-grid">
+            <div class="route-card" onclick="window.location.href='/search?source=Kathmandu&destination=Pokhara'">
+                <div class="route-icon">
+                    <i class="fas fa-mountain"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Kathmandu → Pokhara</h4>
+                    <p>6-7 hours • 12 buses daily</p>
+                </div>
+                <div class="route-price">रू 800+</div>
+            </div>
+            <div class="route-card" onclick="window.location.href='/search?source=Kathmandu&destination=Biratnagar'">
+                <div class="route-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Kathmandu → Biratnagar</h4>
+                    <p>8-9 hours • 8 buses daily</p>
+                </div>
+                <div class="route-price">रू 1200+</div>
+            </div>
+            <div class="route-card" onclick="window.location.href='/search?source=Pokhara&destination=Kathmandu'">
+                <div class="route-icon">
+                    <i class="fas fa-mountain"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Pokhara → Kathmandu</h4>
+                    <p>6-7 hours • 10 buses daily</p>
+                </div>
+                <div class="route-price">रू 800+</div>
+            </div>
+            <div class="route-card" onclick="window.location.href='/search?source=Kathmandu&destination=Chitwan'">
+                <div class="route-icon">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Kathmandu → Chitwan</h4>
+                    <p>5-6 hours • 15 buses daily</p>
+                </div>
+                <div class="route-price">रू 600+</div>
+            </div>
+            <div class="route-card" onclick="window.location.href='/search?source=Kathmandu&destination=Lumbini'">
+                <div class="route-icon">
+                    <i class="fas fa-pray"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Kathmandu → Lumbini</h4>
+                    <p>8-9 hours • 6 buses daily</p>
+                </div>
+                <div class="route-price">रू 1000+</div>
+            </div>
+            <div class="route-card" onclick="window.location.href='/search?source=Butwal&destination=Pokhara'">
+                <div class="route-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <div class="route-info">
+                    <h4>Butwal → Pokhara</h4>
+                    <p>4-5 hours • 8 buses daily</p>
+                </div>
+                <div class="route-price">रू 500+</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="offers">
+        <div class="section-title">
+            <h2>Exclusive Offers</h2>
+            <p>Grab these amazing deals before they expire</p>
+        </div>
+        <div class="offers-grid">
+            <div class="offer-card">
+                <span class="offer-tag">WEEKEND OFFER</span>
+                <h3>30% OFF</h3>
+                <p>on all bookings to Pokhara</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">Use code: POKHARA30</p>
+                <button class="btn-offer">Book Now →</button>
+            </div>
+            <div class="offer-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <span class="offer-tag">FESTIVAL OFFER</span>
+                <h3>रू 200 OFF</h3>
+                <p>on first booking with Esewa</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">Min. booking रू 1000</p>
+                <button class="btn-offer">Book Now →</button>
+            </div>
+            <div class="offer-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <span class="offer-tag">STUDENT OFFER</span>
+                <h3>15% OFF</h3>
+                <p>for students with valid ID</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">Show ID at boarding</p>
+                <button class="btn-offer">Book Now →</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="section-title">
+            <h2>What Our Travelers Say</h2>
+            <p>Real experiences from our happy customers</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">R</div>
+                    <div class="testimonial-info">
+                        <h4>Rajesh Sharma</h4>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="testimonial-text">"Excellent service! Booked Kathmandu to Pokhara bus. The bus was clean, on time, and the seats were very comfortable. Will definitely use again."</p>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">S</div>
+                    <div class="testimonial-info">
+                        <h4>Sunita Gurung</h4>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="testimonial-text">"Very user-friendly website. The seat selection feature is great. Had a smooth journey from Biratnagar to Kathmandu. Highly recommended!"</p>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">A</div>
+                    <div class="testimonial-info">
+                        <h4>Anil KC</h4>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <p class="testimonial-text">"The live bus tracking feature is amazing! Could track exactly where my bus was. Customer support was also very helpful when I had to reschedule."</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About BusYatra</h3>
+                <p>Nepal's most trusted online bus ticket booking platform. We partner with over 100+ bus operators to provide you the best travel experience across Nepal.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                    <li><a href="/contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                    <li><a href="/terms"><i class="fas fa-chevron-right"></i> Terms & Conditions</a></li>
+                    <li><a href="/privacy"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                    <li><a href="/faq"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Popular Routes</h3>
+                <ul class="footer-links">
+                    <li><a href="/search?source=Kathmandu&destination=Pokhara"><i class="fas fa-chevron-right"></i> Kathmandu → Pokhara</a></li>
+                    <li><a href="/search?source=Kathmandu&destination=Biratnagar"><i class="fas fa-chevron-right"></i> Kathmandu → Biratnagar</a></li>
+                    <li><a href="/search?source=Pokhara&destination=Kathmandu"><i class="fas fa-chevron-right"></i> Pokhara → Kathmandu</a></li>
+                    <li><a href="/search?source=Kathmandu&destination=Chitwan"><i class="fas fa-chevron-right"></i> Kathmandu → Chitwan</a></li>
+                    <li><a href="/search?source=Butwal&destination=Pokhara"><i class="fas fa-chevron-right"></i> Butwal → Pokhara</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <ul class="contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> Putalisadak, Kathmandu</li>
+                    <li><i class="fas fa-phone"></i> +977-1-4234567</li>
+                    <li><i class="fas fa-envelope"></i> support@busyatra.com</li>
+                    <li><i class="fas fa-clock"></i> 24/7 Customer Support</li>
+                </ul>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 BusYatra. All rights reserved. | Made with <i class="fas fa-heart"></i> in Nepal</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set minimum date to today
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            dateInput.value = today;
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Newsletter subscription
+        document.querySelector('.newsletter-form button').addEventListener('click', function() {
+            const email = document.querySelector('.newsletter-form input').value;
+            if (email) {
+                alert('Thank you for subscribing to our newsletter!');
+                document.querySelector('.newsletter-form input').value = '';
+            } else {
+                alert('Please enter your email address');
+            }
+        });
+    </script>
+</body>
+</html>

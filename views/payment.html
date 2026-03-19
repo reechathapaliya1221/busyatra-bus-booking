@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - BusYatra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f4f4f4;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .payment-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-method {
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method:hover {
+            border-color: #667eea;
+        }
+
+        .payment-method.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .payment-method i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-method h4 {
+            color: #333;
+        }
+
+        .payment-form {
+            margin-top: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .order-summary {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .summary-total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin: 1rem 0;
+        }
+
+        .btn-pay {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pay:hover {
+            background: #229954;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bus"></i>
+            <span>BusYatra</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="payment-section">
+            <div class="section-title">
+                <h2>Select Payment Method</h2>
+            </div>
+
+            <div class="payment-methods">
+                <div class="payment-method selected" onclick="selectMethod('esewa')">
+                    <i class="fas fa-wallet"></i>
+                    <h4>eSewa</h4>
+                </div>
+                <div class="payment-method" onclick="selectMethod('khalti')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Khalti</h4>
+                </div>
+                <div class="payment-method" onclick="selectMethod('card')">
+                    <i class="fas fa-credit-card"></i>
+                    <h4>Card</h4>
+                </div>
+                <div class="payment-method" onclick="selectMethod('bank')">
+                    <i class="fas fa-university"></i>
+                    <h4>Net Banking</h4>
+                </div>
+            </div>
+
+            <div class="payment-form" id="paymentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="1234 5678 9012 3456">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Card Holder Name</label>
+                        <input type="text" placeholder="John Doe">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="text" placeholder="MM/YY">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" placeholder="123">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-summary">
+            <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+            
+            <div class="summary-item">
+                <span>Journey</span>
+                <span>Kathmandu → Pokhara</span>
+            </div>
+            <div class="summary-item">
+                <span>Date & Time</span>
+                <span>Wed, Mar 11, 2026 • 06:00 AM</span>
+            </div>
+            <div class="summary-item">
+                <span>Bus</span>
+                <span>Sagarmatha Deluxe (AC Sleeper)</span>
+            </div>
+            <div class="summary-item">
+                <span>Seats</span>
+                <span>2 Seats (A1, A2)</span>
+            </div>
+            <div class="summary-item">
+                <span>Base Fare</span>
+                <span>रू 2,400</span>
+            </div>
+            <div class="summary-item">
+                <span>Service Fee</span>
+                <span>रू 50</span>
+            </div>
+            <div class="summary-item">
+                <span>GST (5%)</span>
+                <span>रू 120</span>
+            </div>
+            
+            <div class="summary-total">
+                <span>Total Amount:</span>
+                <span>रू 2,570</span>
+            </div>
+
+            <button class="btn-pay" onclick="processPayment()">
+                <i class="fas fa-lock"></i> Pay Securely
+            </button>
+
+            <div class="secure-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>100% Secure Payment</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectMethod(method) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            const form = document.getElementById('paymentForm');
+            
+            switch(method) {
+                case 'esewa':
+                    form.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-wallet" style="font-size: 4rem; color: #667eea;"></i>
+                            <h3 style="margin: 1rem 0;">Pay with eSewa</h3>
+                            <p>You will be redirected to eSewa payment gateway</p>
+                        </div>
+                    `;
+                    break;
+                case 'khalti':
+                    form.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-mobile-alt" style="font-size: 4rem; color: #667eea;"></i>
+                            <h3 style="margin: 1rem 0;">Pay with Khalti</h3>
+                            <p>You will be redirected to Khalti payment gateway</p>
+                        </div>
+                    `;
+                    break;
+                case 'card':
+                    form.innerHTML = `
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Card Number</label>
+                                <input type="text" placeholder="1234 5678 9012 3456">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Card Holder Name</label>
+                                <input type="text" placeholder="John Doe">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Expiry Date</label>
+                                <input type="text" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="password" placeholder="123">
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'bank':
+                    form.innerHTML = `
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Select Bank</label>
+                                <select style="width: 100%; padding: 0.75rem; border: 2px solid #f0f0f0; border-radius: 5px;">
+                                    <option>Nabil Bank</option>
+                                    <option>Global IME Bank</option>
+                                    <option>Prabhu Bank</option>
+                                    <option>NIC Asia Bank</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function processPayment() {
+            alert('Payment processed successfully! Redirecting to confirmation...');
+            window.location.href = '/confirmation';
+        }
+    </script>
+</body>
+</html>
