@@ -1,6 +1,6 @@
 # busyatra-bus-booking
 A complete bus ticket booking system for Nepal built with Node.js, Express, MongoDB. Features user authentication, bus search with Nepali city autocomplete, interactive seat selection, online payments, booking management, and admin panel. Perfect for travel agencies and bus operators.
-# 🚌 BusYatra - Nepal Bus Booking System
+#  BusYatra - Nepal Bus Booking System
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
 ![Express](https://img.shields.io/badge/Express-4.x-blue)
@@ -9,7 +9,6 @@ A complete bus ticket booking system for Nepal built with Node.js, Express, Mong
 
 A comprehensive bus ticket booking platform for Nepal with modern UI, real-time seat selection, and secure payments.
 
-![Homepage Screenshot](https://via.placeholder.com/800x400?text=BusYatra+Homepage)
 
 ## ✨ Features
 
@@ -49,4 +48,4 @@ A comprehensive bus ticket booking platform for Nepal with modern UI, real-time 
 | **HTML5/CSS3** | Frontend |
 | **Font Awesome** | Icons |
 
-## 📁 Project Structure
+
